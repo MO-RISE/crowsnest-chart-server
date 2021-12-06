@@ -16,5 +16,7 @@ COPY modify_style_specs.py .
 
 USER node:node
 
+EXPOSE 8080
+
 ENTRYPOINT ["/data/start.sh"]
 
