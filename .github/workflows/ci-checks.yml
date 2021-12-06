@@ -24,10 +24,10 @@ jobs:
           pip install -r requirements_dev.txt
       - name: Run black
         run: |
-          black --check app tests
+          black --check .
       - name: Run pylint
         run: |
-          pylint app
+          pylint modify_style_specs.py
 
   testing:
     needs: linting

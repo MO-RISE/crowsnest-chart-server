@@ -18,4 +18,3 @@ USER node:node
 
 ENTRYPOINT ["/data/start.sh"]
 
-#CMD ["-p", "80"]

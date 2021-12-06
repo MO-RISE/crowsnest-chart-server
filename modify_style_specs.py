@@ -1,3 +1,5 @@
+"""Modify style specification files for vector files
+"""
 import os
 import re
 import json
@@ -18,7 +20,7 @@ def modify(styles_path):
     """
     env_vars = os.environ
     if any(
-        [ev in env_vars for ev in ["TILE_SOURCE_URL_HOST", "TILE_SOURCE_URL_HTTPS"]]
+        (ev in env_vars for ev in ["TILE_SOURCE_URL_HOST", "TILE_SOURCE_URL_HTTPS"])
     ):
 
         print("Modifying the style specification files ....")
@@ -31,25 +33,27 @@ def modify(styles_path):
             else None
         )
 
-        for p in Path(styles_path).iterdir():
-            with open(p) as f:
-                style_spec = json.load(f)
+        for path in Path(styles_path).iterdir():
+            with open(path, encoding="utf-8") as file:
+                style_spec = json.load(file)
             for key, value in style_spec["sources"].items():
                 src_url = value["url"]
-                m = re.search("(https?)://([A-Za-z0-9_.:]+)(/[A-Za-z0-9_/.]+)", src_url)
+                match = re.search(
+                    "(https?)://([A-Za-z0-9_.:]+)(/[A-Za-z0-9_/.]+)", src_url
+                )
                 new_protocol = (
-                    "https" if "TILE_SOURCE_URL_HTTPS" in env_vars else m.group(1)
+                    "https" if "TILE_SOURCE_URL_HTTPS" in env_vars else match.group(1)
                 )
                 new_host = (
                     env_vars["TILE_SOURCE_URL_HOST"]
                     if "TILE_SOURCE_URL_HOST" in env_vars
-                    else m.group(2)
+                    else match.group(2)
                 )
-                new_src_url = new_protocol + "://" + new_host + m.group(3)
+                new_src_url = new_protocol + "://" + new_host + match.group(3)
                 style_spec["sources"][key]["url"] = new_src_url
-            with open(p, "w") as f:
-                json.dump(style_spec, f, indent=4)
-            print(f"  Successfully modified the file '{p.name}'")
+            with open(path, "w", encoding="utf-8") as file:
+                json.dump(style_spec, file, indent=4)
+            print(f"  Successfully modified the file '{path.name}'")
             print(f"   from: {src_url}")
             print(f"   to: {new_src_url}")
 
